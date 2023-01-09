@@ -1,13 +1,11 @@
-// import { useRouter } from 'next/router';
+import {server} from '../../../config';
+import Meta from '../../../components/Meta';
 import Link from 'next/link';
 
 const Comment = ({comment}) => {
-  // const router = useRouter();
-  // const {id} = router.query;
-  console.log('comment', comment);
-  
   return (
     <>
+      <Meta title={comment.name} />
       <h3>{comment.name} &rarr;</h3>
       <p>{comment.body}</p>
       <br />
@@ -17,7 +15,7 @@ const Comment = ({comment}) => {
 }
 
 export const getStaticProps = async (context) => {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/comments/${context.params.id}`);
+  const res = await fetch(`${server}/api/comments/${context.params.id}`);
   const comment = await res.json();
 
   return {
@@ -28,7 +26,7 @@ export const getStaticProps = async (context) => {
 }
 
 export const getStaticPaths = async () => {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/comments`);
+  const res = await fetch(`${server}/api/comments`);
   const comments = await res.json();
   const ids = comments.map(comment => comment.id);
   const paths = ids.map(id => ({params: {id: id.toString()}}))
