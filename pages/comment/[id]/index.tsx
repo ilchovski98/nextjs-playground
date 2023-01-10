@@ -1,4 +1,4 @@
-import {server} from '../../../config';
+import { server } from '../../../config';
 import Meta from '../../../components/Meta';
 import Link from 'next/link';
 
@@ -29,7 +29,7 @@ export const getStaticPaths = async () => {
   const res = await fetch(`${server}/api/comments`);
   const comments = await res.json();
   const ids = comments.map(comment => comment.id);
-  const paths = ids.map(id => ({params: {id: id.toString()}}))
+  const paths = ids.map(id => ({params: {id: id.toString()}}));
   
   return {
     paths,
