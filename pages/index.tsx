@@ -1,47 +1,50 @@
 import {useState} from 'react';
 import {ethers} from 'ethers';
+import Web3Modal from 'web3modal';
+import WalletConnectProvider from '@walletconnect/web3-provider';
 
 import {server} from '../config';
 import CommentList from '../components/CommentList';
 import {abi} from '../constants/raffle';
 
+let web3modalInstance;
+
+const providerOptions =  {
+  walletconnect: {
+    package: WalletConnectProvider,
+    options: {
+      rpc: {5: process.env.RPC_GOERLI}
+    }
+  }
+}
+
+if (typeof window.ethereum !== 'undefined') {
+  web3modalInstance = new Web3Modal({
+    cacheProvider: false,
+    providerOptions
+  })
+}
+
 export default function Home({comments}) {
-  const [isConnected, setIsConnected] = useState(false);
-  const [signer, setSigner] = useState();
+  // const [isConnected, setIsConnected] = useState(false);
+  // const [signer, setSigner] = useState();
 
   async function connect() {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        await window.ethereum.request({method: 'eth_requestAccounts'});
-        setIsConnected(true);
-        let connectedProvider = new ethers.providers.Web3Provider(window.ethereum);
-        setSigner(connectedProvider.getSigner());
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      setIsConnected(false);
-    }
+    const web3ModalProvider = await web3modalInstance.connect();
+    // const provider = new ethers.providers.Web3Provider(web3ModalProvider);
   }
 
-  async function execute() {
-    if (typeof window.ethereum !== 'undefined') {
-      const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
-      const contract = new ethers.Contract(contractAddress, abi, signer);
-      await contract.enterRaffle({value: ethers.utils.parseEther("10")});
-    }
-  }
+  // async function execute() {
+  //   if (typeof window.ethereum !== 'undefined') {
+  //     const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+  //     const contract = new ethers.Contract(contractAddress, abi, signer);
+  //     await contract.enterRaffle({value: ethers.utils.parseEther("10")});
+  //   }
+  // }
 
   return (
     <>
-      {
-        isConnected ?
-        <>
-          <button>Connected!</button>
-          <button onClick={execute}>Execute</button>
-        </> :
-        <button onClick={connect}>Connect</button>
-      }
+      <button onClick={connect}>Connect</button>
       <CommentList comments={comments} />
     </>
   )
